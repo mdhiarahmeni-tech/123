@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Downloader - Download Any Video</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -27,39 +27,45 @@
                     <div class="input-wrapper">
                         <input type="text" id="urlInput" placeholder="Paste video URL here..." autocomplete="off">
                         <button id="fetchBtn" class="btn-fetch">
-                            <span class="btn-text">Fetch Info</span>
+                            <span class="btn-text">Get Video</span>
                             <span class="loading-spinner"></span>
                         </button>
                     </div>
-                    <div class="format-section" id="formatSection" style="display: none;">
-                        <div class="video-info" id="videoInfo"></div>
-                        <div class="format-options">
-                            <label>Download Format:</label>
-                            <div class="format-buttons">
-                                <button class="format-btn active" data-format="best">Best Quality</button>
-                                <button class="format-btn" data-format="1080p">1080p HD</button>
-                                <button class="format-btn" data-format="720p">720p</button>
-                                <button class="format-btn" data-format="480p">480p</button>
-                                <button class="format-btn" data-format="audio">Audio Only (MP3)</button>
-                            </div>
+                    
+                    <div class="video-info" id="videoInfo" style="display: none;">
+                        <img id="thumbnail" src="" alt="Thumbnail">
+                        <div class="video-details">
+                            <h3 id="videoTitle">Video Title</h3>
+                            <p id="videoAuthor">Channel Name</p>
                         </div>
+                    </div>
+                    
+                    <div class="quality-section" id="qualitySection" style="display: none;">
+                        <label>Select Quality:</label>
+                        <select id="qualitySelect">
+                            <option value="highest">Best Available</option>
+                            <option value="high">High Quality (1080p)</option>
+                            <option value="medium">Medium Quality (720p)</option>
+                            <option value="low">Low Quality (480p)</option>
+                            <option value="audio">Audio Only (MP3)</option>
+                        </select>
                         <button id="downloadBtn" class="btn-download">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 16L16 11H13V4H11V11H8L12 16Z"/>
                                 <path d="M20 18H4C3.45 18 3 17.55 3 17C3 16.45 3.45 16 4 16H20C20.55 16 21 16.45 21 17C21 17.55 20.55 18 20 18Z"/>
                             </svg>
-                            Download Video
+                            Download
                         </button>
                     </div>
-                </div>
-                
-                <div class="progress-section" id="progressSection" style;">
-                    <div class="progress-header">
-                        <span="display: none class="progress-status" id="progressStatus">Preparing download...</span>
-                        <span class="progress-percent" id="progressPercent">0%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
+                    
+                    <div class="progress-section" id="progressSection" style="display: none;">
+                        <div class="progress-header">
+                            <span class="progress-status" id="progressStatus">Preparing...</span>
+                            <span class="progress-percent" id="progressPercent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -73,9 +79,7 @@
                         <span class="site-badge">Facebook</span>
                         <span class="site-badge">TikTok</span>
                         <span class="site-badge">Dailymotion</span>
-                        <span class="site-badge">Reddit</span>
-                        <span class="site-badge">Twitch</span>
-                        <span class="site-badge">And 1000+ more!</span>
+                        <span class="site-badge">And more!</span>
                     </div>
                 </div>
             </div>
@@ -85,7 +89,6 @@
             <p>For personal use only. Respect content creators' rights.</p>
         </footer>
     </div>
-
-    <script src="/static/script.js"></script>
+    <script src="/script.js"></script>
 </body>
 </html>
