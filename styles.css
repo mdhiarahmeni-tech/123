@@ -1,0 +1,169 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+}
+
+.game-container {
+    width: 95%;
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 3em;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+    margin-bottom: 10px;
+}
+
+.score-board {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.score, .high-score {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
+
+.game-area {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+#gameCanvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.game-over, .start-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    z-index: 10;
+}
+
+.hidden {
+    display: none;
+}
+
+.game-over h2, .start-screen h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    color: #ff6b6b;
+}
+
+.start-screen h2 {
+    color: #4ecdc4;
+}
+
+.game-over p, .start-screen p {
+    font-size: 1.3em;
+    margin: 10px 0;
+}
+
+#playerName {
+    width: 100%;
+    padding: 12px;
+    margin: 20px 0 10px 0;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    text-align: center;
+}
+
+button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.2em;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 10px;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.5);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+.controls {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.boost-btn {
+    font-size: 1.5em;
+    padding: 15px 50px;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.boost-btn:hover {
+    box-shadow: 0 5px 20px rgba(245, 87, 108, 0.5);
+}
+
+.instructions {
+    margin-top: 15px;
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+    .header h1 {
+        font-size: 2em;
+    }
+    
+    .score-board {
+        font-size: 1em;
+        gap: 20px;
+    }
+    
+    .game-over, .start-screen {
+        padding: 20px;
+        width: 90%;
+    }
+    
+    .game-over h2, .start-screen h2 {
+        font-size: 1.8em;
+    }
+}
