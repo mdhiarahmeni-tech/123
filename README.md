@@ -4,37 +4,29 @@ A modern web application to download videos from any platform.
 
 ## Features
 
-- Download videos from YouTube and 1000+ platforms
+- Download videos from YouTube, Vimeo, Twitter, Instagram, Facebook, TikTok, Reddit, Dailymotion, Twitch + 1000+ more platforms
 - Multiple quality options (Best, 1080p, 720p, 480p)
 - Audio extraction (MP3)
 - Modern, responsive UI
 
 ## Setup
 
-1. Install Node.js (v14 or higher)
-
-2. Install dependencies:
+1. Install dependencies:
 ```bash
-npm install
+pip install -r requirements.txt
 ```
 
-3. Run the application:
+2. Run the application:
 ```bash
-npm start
+python app.py
 ```
 
-4. Open http://localhost:3000 in your browser
+3. Open http://localhost:5000 in your browser
 
-## Supported Platforms
+## Requirements
 
-- YouTube
-- Vimeo
-- Twitter/X
-- Instagram
-- Facebook
-- TikTok
-- Dailymotion
-- And many more!
+- Python 3.8+
+- FFmpeg (for audio extraction)
 
 ## Note
 

@@ -1,4 +1,3 @@
-// DOM Elements
 const urlInput = document.getElementById('urlInput');
 const fetchBtn = document.getElementById('fetchBtn');
 const videoInfo = document.getElementById('videoInfo');
@@ -10,13 +9,12 @@ const qualitySelect = document.getElementById('qualitySelect');
 const downloadBtn = document.getElementById('downloadBtn');
 const progressSection = document.getElementById('progressSection');
 const progressStatus = document.getElementById('progressStatus');
-const progressPercent = document.getElementById('progressPercent');
 const progressFill = document.getElementById('progressFill');
+const progressPercent = document.getElementById('progressPercent');
 
-// State
 let currentUrl = '';
 
-// Event Listeners
+// Event listeners
 fetchBtn.addEventListener('click', fetchVideoInfo);
 urlInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') fetchVideoInfo();
@@ -49,7 +47,6 @@ async function fetchVideoInfo() {
             return;
         }
         
-        // Display video info
         thumbnail.src = data.thumbnail;
         videoTitle.textContent = data.title;
         videoAuthor.textContent = data.author;
@@ -59,7 +56,7 @@ async function fetchVideoInfo() {
         progressSection.style.display = 'none';
         
     } catch (error) {
-        alert('Failed to fetch video info. Please check the URL.');
+        alert('Failed to fetch video info');
     } finally {
         setLoading(false);
     }
@@ -68,67 +65,82 @@ async function fetchVideoInfo() {
 // Download video
 async function downloadVideo() {
     const quality = qualitySelect.value;
+    
     setDownloading(true);
     progressSection.style.display = 'block';
     progressStatus.textContent = 'Preparing download...';
-    progressPercent.textContent = '0%';
     progressFill.style.width = '0%';
+    progressPercent.textContent = '0%';
     
     try {
-        let downloadUrl;
+        const response = await fetch('/api/download', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: currentUrl, quality })
+        });
         
-        if (quality === 'audio') {
-            downloadUrl = `/api/audio?url=${encodeURIComponent(currentUrl)}`;
-        } else {
-            downloadUrl = `/api/download?url=${encodeURIComponent(currentUrl)}&quality=${quality}`;
+        const data = await response.json();
+        
+        if (data.error) {
+            alert(data.error);
+            return;
         }
         
-        // Create hidden download link
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = '';
-        document.body.appendChild(link);
-        
-        progressStatus.textContent = 'Downloading...';
-        
-        // Start download
-        link.click();
-        document.body.removeChild(link);
-        
-        // Simulate progress (actual progress requires stream monitoring)
-        let progress = 0;
-        const progressInterval = setInterval(() => {
-            progress += 5;
-            if (progress >= 90) {
-                clearInterval(progressInterval);
-            }
-            progressPercent.textContent = progress + '%';
-            progressFill.style.width = progress + '%';
-        }, 300);
-        
-        // Reset after download
-        setTimeout(() => {
-            progressStatus.textContent = 'Download complete!';
-            progressPercent.textContent = '100%';
-            progressFill.style.width = '100%';
-            
-            setTimeout(() => {
-                progressSection.style.display = 'none';
-                setDownloading(false);
-            }, 2000);
-        }, 3000);
+        // Poll for status
+        pollStatus(data.download_id);
         
     } catch (error) {
         alert('Download failed: ' + error.message);
-        progressSection.style.display = 'none';
         setDownloading(false);
     }
+}
+
+// Poll download status
+async function pollStatus(downloadId) {
+    const interval = setInterval(async () => {
+        try {
+            const response = await fetch(`/api/status/${downloadId}`);
+            const data = await response.json();
+            
+            if (data.status === 'error') {
+                clearInterval(interval);
+                alert('Download failed: ' + data.error);
+                setDownloading(false);
+                return;
+            }
+            
+            if (data.status === 'completed' && data.filename) {
+                clearInterval(interval);
+                progressStatus.textContent = 'Download complete!';
+                progressFill.style.width = '100%';
+                progressPercent.textContent = '100%';
+                
+                // Trigger download
+                window.location.href = `/download/${encodeURIComponent(data.filename)}`;
+                
+                setTimeout(() => {
+                    progressSection.style.display = 'none';
+                    setDownloading(false);
+                }, 2000);
+                return;
+            }
+            
+            if (data.status === 'downloading') {
+                progressStatus.textContent = 'Downloading...';
+                const progress = data.progress || 0;
+                progressFill.style.width = progress + '%';
+                progressPercent.textContent = progress + '%';
+            }
+            
+        } catch (error) {
+            console.error('Status check failed:', error);
+        }
+    }, 1000);
 }
 
 // Helper functions
 function setLoading(isLoading) {
     fetchBtn.disabled = isLoading;
-    fetchBtn.classList.toggle('loading', isLoading);
     urlInput.disabled = isLoading;
 }
 

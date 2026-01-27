@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Downloader</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 Video Downloader</h1>
+            <p>Download any video from anywhere</p>
+        </header>
+
+        <main>
+            <div class="card">
+                <div class="input-group">
+                    <input type="text" id="urlInput" placeholder="Paste video URL here...">
+                    <button id="fetchBtn">Get Video</button>
+                </div>
+
+                <div id="videoInfo" class="video-info" style="display: none;">
+                    <img id="thumbnail" src="" alt="Thumbnail">
+                    <div class="video-details">
+                        <h3 id="videoTitle"></h3>
+                        <p id="videoAuthor"></p>
+                    </div>
+                </div>
+
+                <div id="qualitySection" class="quality-section" style="display: none;">
+                    <label>Quality:</label>
+                    <select id="qualitySelect">
+                        <option value="highest">Best Available</option>
+                        <option value="high">1080p HD</option>
+                        <option value="medium">720p</option>
+                        <option value="low">480p</option>
+                        <option value="audio">Audio Only (MP3)</option>
+                    </select>
+                    <button id="downloadBtn" class="download-btn">Download</button>
+                </div>
+
+                <div id="progressSection" class="progress-section" style="display: none;">
+                    <p id="progressStatus">Preparing...</p>
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <p id="progressPercent">0%</p>
+                </div>
+            </div>
+
+            <div class="supported">
+                <h3>Supported Platforms</h3>
+                <p>YouTube, Vimeo, Twitter, Instagram, Facebook, TikTok, Reddit, Dailymotion, Twitch + 1000+ more!</p>
+            </div>
+        </main>
+
+        <footer>
+            <p>For personal use only</p>
+        </footer>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>
