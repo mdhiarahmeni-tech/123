@@ -25,6 +25,7 @@ let isBoosting = false;
 
 const WORLD_WIDTH = 2000;
 const WORLD_HEIGHT = 1500;
+const MAX_SNAKE_LENGTH = 150;
 
 class Snake {
     constructor(x, y, isPlayer = false, name = 'Bot') {
@@ -227,7 +228,9 @@ class Snake {
     }
     
     grow() {
-        this.length += 3;
+        if (this.length < MAX_SNAKE_LENGTH) {
+            this.length += 3;
+        }
     }
     
     checkCollision(otherSnake) {
@@ -427,6 +430,11 @@ function gameLoop() {
                     food.push(new Food());
                 }
             });
+            
+            if (player && player.alive && bot.checkCollision(player)) {
+                bot.die();
+                return;
+            }
             
             for (let otherBot of bots) {
                 if (bot !== otherBot && bot.checkCollision(otherBot)) {
