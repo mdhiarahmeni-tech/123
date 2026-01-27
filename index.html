@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slither.io - Snake Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>Slither.io</h1>
+            <div class="score-board">
+                <div class="score">Score: <span id="score">0</span></div>
+                <div class="high-score">High Score: <span id="highScore">0</span></div>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <canvas id="gameCanvas"></canvas>
+            <div id="gameOver" class="game-over hidden">
+                <h2>Game Over!</h2>
+                <p>Final Score: <span id="finalScore">0</span></p>
+                <p>Length: <span id="finalLength">0</span></p>
+                <button id="restartBtn">Play Again</button>
+            </div>
+            <div id="startScreen" class="start-screen">
+                <h2>Welcome to Slither.io</h2>
+                <p>Use mouse to move your snake</p>
+                <p>Click boost button or hold left click for speed boost</p>
+                <p>Eat food to grow longer</p>
+                <p>Avoid other snakes!</p>
+                <input type="text" id="playerName" placeholder="Enter your name" maxlength="15">
+                <button id="startBtn">Start Game</button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="boostBtn" class="boost-btn">🚀 Boost</button>
+            <div class="instructions">
+                <p>Move: Mouse | Boost: Left Click / Boost Button</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
