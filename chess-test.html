@@ -157,7 +157,7 @@
     </style>
   </head>
   <body>
-    <h1>Chess Test (human vs human)</h1>
+    <h1>Chess Test</h1>
 
     <div class="toolbar">
       <button id="resetBtn">Reset</button>
@@ -184,6 +184,16 @@
         </select>
       </label>
 
+      <label>
+        Promotion
+        <select id="promotionSelect">
+          <option value="queen" selected>Queen</option>
+          <option value="rook">Rook</option>
+          <option value="bishop">Bishop</option>
+          <option value="knight">Knight</option>
+        </select>
+      </label>
+
       <button id="aiMoveBtn">AI move</button>
 
       <span class="badge" id="turnBadge"></span>
@@ -194,7 +204,7 @@
       <div>
         <div id="boardGrid" class="board" aria-label="Chess board"></div>
         <div class="hint">
-          Click a piece to select. Click a highlighted square to move. Castling, en passant, and promotion are supported.
+          Click a piece to select. Click a highlighted square to move. Castling and en passant are supported. Choose pawn promotion piece in the toolbar.
         </div>
       </div>
 
@@ -229,6 +239,7 @@
 
       const modeEl = document.getElementById('modeSelect');
       const levelEl = document.getElementById('levelSelect');
+      const promotionEl = document.getElementById('promotionSelect');
       const aiMoveBtn = document.getElementById('aiMoveBtn');
 
       const aiConfig = {
@@ -439,8 +450,7 @@
       }
 
       function choosePromotion() {
-        const raw = window.prompt('Promote to: queen, rook, bishop, knight', 'queen');
-        const v = String(raw || 'queen').trim().toLowerCase();
+        const v = String(promotionEl.value || 'queen').trim().toLowerCase();
         if (['queen', 'rook', 'bishop', 'knight'].includes(v)) return v;
         return 'queen';
       }
@@ -517,7 +527,9 @@
         let promotion = null;
         const promotionMoves = candidateMoves.filter((m) => !!m.promotion);
         if (promotionMoves.length) {
-          promotion = choosePromotion();
+          const wanted = choosePromotion();
+          const found = promotionMoves.find((m) => m.promotion === wanted);
+          promotion = found ? wanted : promotionMoves[0].promotion;
         }
 
         const legalMovesBefore = legalMoves;
