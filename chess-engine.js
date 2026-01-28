@@ -770,9 +770,143 @@
     return lines.join('\n');
   }
 
+  const PIECE_VALUES = {
+    pawn: 100,
+    knight: 320,
+    bishop: 320,
+    rook: 500,
+    queen: 900,
+    king: 0,
+  };
+
+  function getDifficultyDepth(elo) {
+    const n = typeof elo === 'string' ? parseInt(elo, 10) : elo;
+    if (n <= 800) return 1;
+    if (n <= 1200) return 2;
+    if (n <= 1600) return 3;
+    return 4;
+  }
+
+  function evaluatePosition(stateOrBoard, perspectiveColor) {
+    const state = toBoardLike(stateOrBoard);
+    const board = state.board;
+    const me = perspectiveColor || state.turn;
+    const them = opponent(me);
+
+    let score = 0;
+
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = board[r][c];
+        if (!p) continue;
+        const v = PIECE_VALUES[p.type] || 0;
+        score += p.color === me ? v : -v;
+      }
+    }
+
+    // Simple center control / presence.
+    const centerSquares = [
+      { r: 3, c: 3 }, // d5
+      { r: 3, c: 4 }, // e5
+      { r: 4, c: 3 }, // d4
+      { r: 4, c: 4 }, // e4
+    ];
+
+    for (const sq of centerSquares) {
+      const p = board[sq.r][sq.c];
+      if (p) score += p.color === me ? 10 : -10;
+
+      if (isSquareAttacked(state, sq, me)) score += 3;
+      if (isSquareAttacked(state, sq, them)) score -= 3;
+    }
+
+    // King safety (very simple).
+    if (isCheck(state, me)) score -= 60;
+    if (isCheck(state, them)) score += 60;
+
+    const myKing = findKing(board, me);
+    if (myKing) {
+      const isCastled = (me === 'white' && myKing.r === 7 && (myKing.c === 6 || myKing.c === 2))
+        || (me === 'black' && myKing.r === 0 && (myKing.c === 6 || myKing.c === 2));
+      if (isCastled) score += 25;
+      else {
+        const cr = state.castlingRights?.[me];
+        if (cr && !cr.kingside && !cr.queenside) score -= 10;
+      }
+    }
+
+    return score;
+  }
+
+  function shuffleInPlace(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function getBestMove(stateOrBoard, options = {}) {
+    const state = toBoardLike(stateOrBoard);
+    const depth = Math.max(1, options.depth || 2);
+    const randomize = options.randomize !== false;
+
+    const moves = getLegalMoves(state, state.turn);
+    if (!moves.length) return null;
+
+    if (randomize) shuffleInPlace(moves);
+
+    const MATE = 100000;
+
+    function negamax(d, alpha, beta, ply) {
+      if (isDraw(state)) return 0;
+      if (d === 0) return evaluatePosition(state, state.turn);
+
+      const ms = getLegalMoves(state, state.turn);
+      if (!ms.length) return isCheck(state, state.turn) ? -MATE + ply : 0;
+      if (randomize) shuffleInPlace(ms);
+
+      let best = -Infinity;
+
+      for (const m of ms) {
+        const undo = makeMoveInPlace(state, m, { trackHistory: false, trackRepetition: false });
+        const score = -negamax(d - 1, -beta, -alpha, ply + 1);
+        undoMoveInPlace(state, undo, { trackHistory: false, trackRepetition: false });
+
+        if (score > best) best = score;
+        if (score > alpha) alpha = score;
+        if (alpha >= beta) break;
+      }
+
+      return best;
+    }
+
+    let bestScore = -Infinity;
+    let bestMoves = [];
+
+    for (const m of moves) {
+      const undo = makeMoveInPlace(state, m, { trackHistory: false, trackRepetition: false });
+      const score = -negamax(depth - 1, -Infinity, Infinity, 1);
+      undoMoveInPlace(state, undo, { trackHistory: false, trackRepetition: false });
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestMoves = [m];
+      } else if (score === bestScore) {
+        bestMoves.push(m);
+      }
+    }
+
+    if (!bestMoves.length) return moves[0];
+    if (randomize && bestMoves.length > 1) shuffleInPlace(bestMoves);
+
+    return bestMoves[0];
+  }
+
   const api = {
     PIECE_TYPES,
     PROMOTION_TYPES,
+    PIECE_VALUES,
     createInitialBoard,
     createInitialGameState,
     cloneBoard,
@@ -791,6 +925,9 @@
     isDraw,
     positionKey,
     printBoardAscii,
+    evaluatePosition,
+    getDifficultyDepth,
+    getBestMove,
   };
 
   if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

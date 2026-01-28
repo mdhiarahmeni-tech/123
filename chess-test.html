@@ -45,6 +45,16 @@
 
       button:hover { background: #eef2f5; }
 
+      select {
+        font-size: 14px;
+        padding: 6px 10px;
+        border: 1px solid #d0d7de;
+        background: #fff;
+        border-radius: 6px;
+      }
+
+      label { font-size: 13px; color: #333; }
+
       .layout {
         display: flex;
         gap: 16px;
@@ -153,6 +163,29 @@
       <button id="resetBtn">Reset</button>
       <button id="undoBtn">Undo</button>
       <button id="legalBtn">Log legal moves (current turn)</button>
+
+      <label>
+        Mode
+        <select id="modeSelect">
+          <option value="hvh">Human vs Human</option>
+          <option value="ai_black">Play vs AI (you = White)</option>
+          <option value="ai_white">Play vs AI (you = Black)</option>
+          <option value="aivai">AI vs AI</option>
+        </select>
+      </label>
+
+      <label>
+        AI Level
+        <select id="levelSelect">
+          <option value="800">800 (Depth 1)</option>
+          <option value="1200" selected>1200 (Depth 2)</option>
+          <option value="1600">1600 (Depth 3)</option>
+          <option value="2000">2000 (Depth 4)</option>
+        </select>
+      </label>
+
+      <button id="aiMoveBtn">AI move</button>
+
       <span class="badge" id="turnBadge"></span>
       <span class="badge" id="resultBadge"></span>
     </div>
@@ -193,6 +226,43 @@
       let state = E.createInitialGameState();
       let selected = null; // {r,c}
       let uiHistory = []; // SAN strings
+
+      const modeEl = document.getElementById('modeSelect');
+      const levelEl = document.getElementById('levelSelect');
+      const aiMoveBtn = document.getElementById('aiMoveBtn');
+
+      const aiConfig = {
+        white: false,
+        black: false,
+        depth: E.getDifficultyDepth(levelEl.value),
+      };
+
+      let aiThinking = false;
+
+      function isAI(color) {
+        return !!aiConfig[color];
+      }
+
+      function applyMode() {
+        const mode = modeEl.value;
+        if (mode === 'hvh') {
+          aiConfig.white = false;
+          aiConfig.black = false;
+        } else if (mode === 'ai_black') {
+          aiConfig.white = false;
+          aiConfig.black = true;
+        } else if (mode === 'ai_white') {
+          aiConfig.white = true;
+          aiConfig.black = false;
+        } else if (mode === 'aivai') {
+          aiConfig.white = true;
+          aiConfig.black = true;
+        }
+      }
+
+      function applyLevel() {
+        aiConfig.depth = E.getDifficultyDepth(levelEl.value);
+      }
 
       function getPieceAt(sq) {
         return state.board[sq.r][sq.c];
@@ -286,7 +356,8 @@
       }
 
       function render() {
-        document.getElementById('turnBadge').textContent = `Turn: ${state.turn}`;
+        const turnSuffix = aiThinking ? ' (AI thinking...)' : (isAI(state.turn) ? ' (AI)' : '');
+        document.getElementById('turnBadge').textContent = `Turn: ${state.turn}${turnSuffix}`;
 
         const result = E.getGameResult(state, state.turn);
         let resultText = `Result: ${result}`;
@@ -334,7 +405,7 @@
         for (let r = 0; r < 8; r++) {
           for (let c = 0; c < 8; c++) {
             const btn = document.createElement('button');
-            btn.className = 'sq ' + (((r + c) % 2 === 0) ? 'dark' : 'light');
+            btn.className = 'sq ' + (((r + c) % 2 === 0) ? 'light' : 'dark');
             btn.type = 'button';
             btn.dataset.r = String(r);
             btn.dataset.c = String(c);
@@ -374,9 +445,47 @@
         return 'queen';
       }
 
+      function maybeAIMove({ force = false } = {}) {
+        if (aiThinking) return;
+        if (!force && !isAI(state.turn)) return;
+
+        const result = E.getGameResult(state, state.turn);
+        if (result !== 'ongoing') return;
+
+        aiThinking = true;
+        selected = null;
+        render();
+
+        window.setTimeout(() => {
+          try {
+            const legalMovesBefore = E.getLegalMoves(state, state.turn);
+            const best = E.getBestMove(state, { depth: aiConfig.depth, randomize: true });
+            if (!best) {
+              aiThinking = false;
+              render();
+              return;
+            }
+
+            const undo = E.makeMove(state, best.from, best.to, best.promotion || undefined);
+            uiHistory.push(moveToSAN(undo, legalMovesBefore));
+            aiThinking = false;
+            render();
+
+            // AI vs AI continues automatically.
+            if (isAI(state.turn)) maybeAIMove();
+          } catch (err) {
+            console.error(err);
+            aiThinking = false;
+            render();
+          }
+        }, 20);
+      }
+
       function onSquareClick(sq) {
         const result = E.getGameResult(state, state.turn);
         if (result !== 'ongoing') return;
+        if (aiThinking) return;
+        if (isAI(state.turn)) return;
 
         const piece = getPieceAt(sq);
 
@@ -419,6 +528,7 @@
           uiHistory.push(san);
           selected = null;
           render();
+          maybeAIMove();
         } catch (err) {
           console.error(err);
           selected = null;
@@ -433,20 +543,64 @@
         onSquareClick(sq);
       });
 
-      document.getElementById('resetBtn').addEventListener('click', () => {
+      function resetGame() {
         state = E.createInitialGameState();
         selected = null;
         uiHistory = [];
+        aiThinking = false;
+        applyMode();
+        applyLevel();
+        render();
+        maybeAIMove();
+      }
+
+      document.getElementById('resetBtn').addEventListener('click', () => {
         console.clear();
         console.log('Reset');
-        render();
+        resetGame();
       });
 
       document.getElementById('undoBtn').addEventListener('click', () => {
-        const ok = E.undoLastMove(state);
-        if (ok) uiHistory.pop();
+        if (aiThinking) return;
+
+        const hasHuman = !(aiConfig.white && aiConfig.black);
+
+        const undoOne = () => {
+          const ok = E.undoLastMove(state);
+          if (ok) uiHistory.pop();
+          return ok;
+        };
+
+        const ok = undoOne();
+        if (!ok) {
+          render();
+          return;
+        }
+
+        if (hasHuman) {
+          while (state.history.length && isAI(state.turn)) {
+            if (!undoOne()) break;
+          }
+        }
+
         selected = null;
         render();
+      });
+
+      modeEl.addEventListener('change', () => {
+        applyMode();
+        selected = null;
+        render();
+        maybeAIMove();
+      });
+
+      levelEl.addEventListener('change', () => {
+        applyLevel();
+        render();
+      });
+
+      aiMoveBtn.addEventListener('click', () => {
+        maybeAIMove({ force: true });
       });
 
       document.getElementById('legalBtn').addEventListener('click', () => {
@@ -464,7 +618,10 @@
       console.log(E.printBoardAscii(state));
       console.log('Legal moves at start (should be 20):', E.getLegalMoves(state, 'white').length);
 
+      applyMode();
+      applyLevel();
       render();
+      maybeAIMove();
     </script>
   </body>
 </html>
