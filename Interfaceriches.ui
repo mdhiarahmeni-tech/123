@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Interfaceriches</class>
+ <widget class="QMainWindow" name="Interfaceriches">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Gestion des nombres riches</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QLabel" name="titleLabel">
+      <property name="text">
+       <string>devoir de controle 3</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font-size: 18px; font-weight: bold;</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="inputLayout">
+      <item>
+       <widget class="QLabel" name="inputLabel">
+        <property name="text">
+         <string>saisir un entier</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="numberLineEdit"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QGridLayout" name="buttonsLayout">
+      <item row="0" column="0">
+       <widget class="QPushButton" name="ajouter1Button">
+        <property name="text">
+         <string>AJOUTER1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="afficher1Button">
+        <property name="text">
+         <string>AFFICHER1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="ajouter2Button">
+        <property name="text">
+         <string>AJOUTER2</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="afficher2Button">
+        <property name="text">
+         <string>AFFICHER2</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="displayLayout">
+      <item>
+       <widget class="QListWidget" name="nombresListWidget"/>
+      </item>
+      <item>
+       <widget class="QTableWidget" name="richeTableWidget">
+        <property name="columnCount">
+         <number>3</number>
+        </property>
+        <property name="rowCount">
+         <number>0</number>
+        </property>
+        <column>
+         <property name="text">
+          <string>num</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>facteur</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>nature</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
